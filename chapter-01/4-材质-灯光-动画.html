@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>材质-灯光-动画</title>
+    <!-- 引入three.js -->
+    <script type="text/javascript" src="../libs/three.js"></script>
+    <!-- 性能监视器相关的js -->
+    <script type="text/javascript" src="../libs/stats.js"></script>
+    <!-- 提供了一些控件的库 -->
+    <script type="text/javascript" src="../libs/dat.gui.js"></script>
+</head>
+<body onload="init()">
+<!-- 性能监控显示的div -->
+<div id="Stats-output"></div>
+
+<!-- 3D 图形显示的div -->
+<div id="WebGL-output"></div>
+
+<!-- threeJs的代码 -->
+<script type="text/javascript">
+
+    var stats, cube, sphere, renderer, scene, camera;
+
+    var step = 0;
+
+    // 初始化方法, 之后three.js会在这里的加载
+    function init() {
+        // 初始化性能监视器
+        initStats();
+
+        // 创建一个3d场景
+        scene = new THREE.Scene();
+
+        // 设置相机
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        // 创建渲染
+        renderer = new THREE.WebGLRenderer();
+
+        renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        // 使用阴影效果
+        renderer.shadowMapEnabled = true;
+
+        // 创建一个空的地板
+        var planeGeometry = new THREE.PlaneGeometry(60, 20, 1, 1);
+        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+
+        // 设置地板的旋转角度和位置
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 15;
+        plane.position.y = 0;
+        plane.position.z = 0;
+
+        scene.add(plane);
+
+        // 创建一个立方体
+        var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+        var cubeMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
+        cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.castShadow = true;
+
+        // 设置立方体的位置
+        cube.position.x = -4;
+        cube.position.y = 3;
+        cube.position.z = 0;
+
+        // 添加到场景
+        scene.add(cube);
+
+        // 设置球体
+        var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
+        var sphereMaterial = new THREE.MeshLambertMaterial({color: 0x7777ff});
+        sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+        // 设置球体的位置
+        sphere.position.x = 20;
+        sphere.position.y = 0;
+        sphere.position.z = 2;
+        sphere.castShadow = true;
+
+        // 设置球体添加到场景
+        scene.add(sphere);
+
+        // 设置相机的位置
+        camera.position.x = -30;
+        camera.position.y = 40;
+        camera.position.z = 30;
+        camera.lookAt(scene.position);
+
+        // 添加影响整个环境的光源
+        var ambientLight = new THREE.AmbientLight(0x0c0c0c);
+        scene.add(ambientLight);
+
+        // 添加聚光灯和阴影
+        var spotLight = new THREE.SpotLight(0xffffff);
+        spotLight.position.set(-40, 60, -10);
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        // 添加图形到div中
+        document.getElementById('WebGL-output').appendChild(renderer.domElement);
+
+        // 场景
+        renderScene();
+    }
+
+
+    function renderScene() {
+        // 更新性能监控
+        stats.update();
+
+        // 立方体旋转
+        cube.rotation.x += 0.02;
+        cube.rotation.y += 0.02;
+        cube.rotation.z += 0.02;
+
+        // 上下弹起球体
+        step += 0.04;
+        sphere.position.x = 20 + (10 * (Math.cos(step)));
+        sphere.position.y = 2 + (10 * Math.abs(Math.sin(step)));
+
+        // 渲染, 请求下一帧
+        requestAnimationFrame(renderScene);
+        renderer.render(scene, camera);
+
+    }
+    
+    // 初始化性能监控
+    function initStats() {
+        stats = new Stats();
+
+        // 设置模式
+        // 0 默认监听fps
+        // 1 默认监听画面的渲染时间
+        // 2 默认监听页面所消耗的内存
+        stats.setMode(0);
+
+        // 设置位置
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.left = '0px';
+        stats.domElement.style.top = '0px';
+
+        document.getElementById("Stats-output").appendChild(stats.domElement);
+    }
+
+</script>
+</body>
+</html>

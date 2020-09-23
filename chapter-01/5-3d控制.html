@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3d控制</title>
+    <!-- 引入three.js -->
+    <script type="text/javascript" src="../libs/three.js"></script>
+    <!-- 性能监视器相关的js -->
+    <script type="text/javascript" src="../libs/stats.js"></script>
+    <!-- 提供了一些控件的库 -->
+    <script type="text/javascript" src="../libs/dat.gui.js"></script>
+</head>
+<body onload="init()">
+<!-- 性能监控显示的div -->
+<div id="Stats-output"></div>
+
+<!-- 3D 图形显示的div -->
+<div id="WebGL-output"></div>
+
+<!-- threeJs的代码 -->
+<script type="text/javascript">
+
+    var scene, camera, renderer, cube, sphere, stats;
+
+    function init() {
+        // 初始化监控
+        initStats();
+
+        // 创建一个场景
+        scene = new THREE.Scene();
+
+        // 创建一个相机
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        // 创建一个渲染器
+        renderer = new THREE.WebGLRenderer();
+
+        // 设置渲染器的一些属性
+        renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMapEnabled = true;
+
+        // 创建一个地板
+        var planeGeometry = new THREE.PlaneGeometry(60, 20, 1, 1);
+        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
+        plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+
+        // 设置地板的旋转角度
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 15;
+        plane.position.y = 0;
+        plane.position.z = 0;
+
+        // 添加地板到场景
+        scene.add(plane);
+
+        // 创建一个立方体
+        var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+        var cubeMaterial = new THREE.MeshLambertMaterial({color: 0xff0000});
+        cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.castShadow = true;
+
+        // 设置立方体的位置
+        cube.position.x = -4;
+        cube.position.y = 3;
+        cube.position.z = 0;
+
+        // 添加立方体到场景
+        scene.add(cube);
+
+        // 创建球体
+        var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
+        var sphereMaterial = new THREE.MeshLambertMaterial({color: 0x7777ff});
+        sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+        // 设置球体的位置
+        sphere.position.x = 20;
+        sphere.position.y = 0;
+        sphere.position.z = 2;
+        sphere.castShadow = true;
+
+        // 添加球体到场景中去
+        scene.add(sphere);
+
+        // 设置相机的位置
+        camera.position.x = -30;
+        camera.position.y = 40;
+        camera.position.z = 30;
+        camera.lookAt(scene.position);
+
+        // 设置环境光
+        // AmbientLight 环境光
+        // PointLight 点光源
+        var ambientLight = new THREE.AmbientLight(0x0c0c0c);
+        scene.add(ambientLight);
+
+        // 设置聚光灯阴影
+        var spotLight = new THREE.SpotLight(0xffffff);
+        spotLight.position.set(-40, 60, -10);
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        // 添加到元素中去
+        document.getElementById('WebGL-output').appendChild(renderer.domElement);
+
+        var gui = new dat.GUI();
+        gui.add(controls, 'rotationSpeed', 0, 0.5);
+        gui.add(controls, 'bouncingSpeed', 0, 0.5);
+
+        render();
+    }
+
+    var step = 0;
+
+    // 旋转速度和弹跳速度
+    var rotationSpeed, bouncingSpeed;
+
+    var controls = {
+        // 旋转速度
+        rotationSpeed: 0.02,
+        // 弹跳速度
+        bouncingSpeed: 0.03
+    }
+
+    // 控制旋转和弹跳
+    function render() {
+        stats.update();
+
+        // 立方体旋转
+        cube.rotation.x += controls.rotationSpeed;
+        cube.rotation.y += controls.rotationSpeed;
+        cube.rotation.z += controls.rotationSpeed;
+
+        // 上下弹起球
+        step += controls.bouncingSpeed;
+        sphere.position.x = 20 + ( 10 * (Math.cos(step)));
+        sphere.position.y = 2 + (10 * Math.abs(Math.sin(step)));
+
+        // 请求下一帧， 重新渲染场景
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+    /**
+     * 初始化性能监控
+     */
+    function initStats() {
+        stats = new Stats();
+
+        // 设置模式
+        stats.setMode(0);
+
+        // 设置监控的位置
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.left = '0px';
+        stats.domElement.style.top = '0px';
+
+        document.getElementById('Stats-output').appendChild(stats.domElement);
+    }
+</script>
+</body>
+</html>

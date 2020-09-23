@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>第一个场景</title>
+    <!-- 引入three.js -->
+    <script type="text/javascript" src="../libs/three.js"></script>
+</head>
+<body onload="init()">
+<!-- threeJs 需要渲染的元素 -->
+<div id="WebGL-output"></div>
+<!-- threeJs的代码 -->
+<script type="text/javascript">
+
+    // 初始化方法, 之后three.js会在这里的加载
+    function init() {
+        // 创建一个场景
+        var scene = new THREE.Scene();
+
+        // 创建一个相机的位置
+        // fov - 相机的视垂体的垂直视角
+        // aspect - 长宽比
+        // near - 相机的近平面
+        // far - 相机的远平面
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+
+        // 设置环境渲染
+        var renderer = new THREE.WebGLRenderer();
+        // 设置背景色
+        renderer.setClearColor(new THREE.Color(0xEEEEEE));
+        // 设置大小
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // 显示坐标轴在渲染中(参数值可以控制大小)
+        var axes = new THREE.AxisHelper(20);
+        scene.add(axes);
+
+        // 创建一个二位平面体 (宽度, 高度, 长度分段， 高度分段)
+        var planeGeometry = new THREE.PlaneBufferGeometry(60, 20);
+        var planeMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+        // 设置这个位置的旋转的位置和角度
+        plane.rotation.x = -0.5 * Math.PI;
+        plane.position.x = 15;
+        plane.position.y = 0;
+        plane.position.z = 0;
+
+        // 添加地板到场景中去
+        scene.add(plane);
+
+        // 创建一个立方体(长, 高, 宽, x轴上面的分割, y轴上面的分割, z轴上面的分割)
+        var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+        var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
+        var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+        // 立方体的位置
+        cube.position.x = -4;
+        cube.position.y = 3;
+        cube.position.z = 0;
+
+        // 把立方体加入到场景中去
+        scene.add(cube);
+
+        // 创建一个球体(球的半径, 球竖直方向的分段数，球水平方向的分段数，从什么地方开始绘制，绘制多大的范围)
+        // radius - 球的半径
+        // widthSegments - 球的宽度分割线
+        // heightSegments - 高度分割线
+        // phiStart - 从x轴什么位置开始绘制
+        // phiLength - 从phiStart开始，轴绘制多少
+        // thetaStart - 从y轴什么位置开始绘制
+        // thetaLength - 从thetaStart开始，绘制多少
+        var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
+        // wireframe 是否以线框呈现，默认为false
+        var sphereMaterial = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: true});
+        var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+        // 设置球体的位置
+        sphere.position.x = 20;
+        sphere.position.y = 4;
+        sphere.position.z = 2;
+
+        // 添加这个球体到场景中去
+        scene.add(sphere);
+
+        // 设置相机的位置，并且使得相机看向屏幕的中间
+        camera.position.x = -30;
+        camera.position.y = 40;
+        camera.position.z = 30;
+        camera.lookAt(scene.position);
+
+        document.getElementById('WebGL-output').appendChild(renderer.domElement);
+
+        // 渲染场景
+        renderer.render(scene, camera);
+    }
+
+</script>
+</body>
+</html>
